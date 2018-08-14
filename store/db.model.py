@@ -1,10 +1,5 @@
-from flask_sqlalchemy import SQLAlchemy
-
-app.config['SQLALCHEMY_DATABASE_URI']='mysql://root:123@localhost:3306/test'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=True
-db = SQLAlchemy(app) #实例化
-
-class Role(db.Model):
+def vmdb(db):
+  class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), unique=True)
@@ -12,9 +7,7 @@ class Role(db.Model):
 
     def __repr__(self):
         return '<Role %r>' % self.name
-
-
-class User(db.Model):
+  class User(db.Model):
     __tablename__ = 'users'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, index=True)
@@ -22,3 +15,5 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User %r>' % self.username
+  if __name__ == '__main__':
+    db.create_all() #直接在hello.py文件中加，在python命令行下输入太麻烦
