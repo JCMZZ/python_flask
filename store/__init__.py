@@ -1,12 +1,12 @@
 # _*_ conding:UTF-8 _*_
 import os
 
-from flask import Flask
+from flask import Flask, send_from_directory
 
-# 引入数据库表创建方法
+# import database create table
 from . import dbcreate
 
-# 引入蓝图
+# import blueprint
 from .view import index
 from .view import product
 from .view import company
@@ -19,7 +19,6 @@ def create_app(test_config=None):
         SECRET_KEY='dev',
         # DATABASE=os.path.join(app.instance_path, 'flaskr.sqlite'),
     )
-
     if test_config is None:
         # load the instance config, if it exists, when not testing
         app.config.from_pyfile('config.py', silent=True)
@@ -35,11 +34,15 @@ def create_app(test_config=None):
     
     # create data table
     dbcreate.vmcreate(app)
-    
+    # register blueprint
     app.register_blueprint(index.index,url_prefix='/index')
     app.register_blueprint(product.product,url_prefix='/product')
     app.register_blueprint(company.company,url_prefix='/company')
     app.register_blueprint(detail.detail,url_prefix='/detail')
+    @app.route('/favicon.ico')
+    def favicon():
+        return send_from_directory(os.path.join(app.root_path, 'static'),'favicon.ico', mimetype='image/vnd.microsoft.icon')
+    
 
     return app
 
