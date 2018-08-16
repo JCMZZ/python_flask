@@ -1,7 +1,16 @@
+# _*_ conding:UTF-8 _*_
 import os
 
 from flask import Flask
+
+# 引入数据库表创建方法
 from . import dbcreate
+
+# 引入蓝图
+from .view import index
+from .view import product
+from .view import company
+from .view import detail
 
 def create_app(test_config=None):
     # create and configure the app
@@ -23,14 +32,14 @@ def create_app(test_config=None):
     #     os.makedirs(app.instance_path)
     # except OSError:
     #     pass
-
-    # a simple page that says hello
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
     
     # create data table
     dbcreate.vmcreate(app)
+    
+    app.register_blueprint(index.index,url_prefix='/index')
+    app.register_blueprint(product.product,url_prefix='/product')
+    app.register_blueprint(company.company,url_prefix='/company')
+    app.register_blueprint(detail.detail,url_prefix='/detail')
 
     return app
 
