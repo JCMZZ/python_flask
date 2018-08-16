@@ -1,7 +1,7 @@
 import os
 
 from flask import Flask
-
+from . import dbcreate
 
 def create_app(test_config=None):
     # create and configure the app
@@ -29,7 +29,9 @@ def create_app(test_config=None):
     def hello():
         return 'Hello, World!'
     
-    
+    # create data table
+    dbcreate.vmcreate(app)
+
     return app
 
 if __name__ == '__main__':

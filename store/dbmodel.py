@@ -15,5 +15,5 @@ def vmdb(db):
 
     def __repr__(self):
         return '<User %r>' % self.username
-  if __name__ == '__main__':
-    db.create_all() #直接在hello.py文件中加，在python命令行下输入太麻烦
+  
+  db.create_all()
