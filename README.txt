@@ -7,3 +7,4 @@ pip install flask-sqlalchemy
 https://www.cnblogs.com/mrchige/p/6389588.html
 # flask-sqlalchemy 简单教程
 http://www.pythondoc.com/flask-sqlalchemy/index.html
+pip install requests
