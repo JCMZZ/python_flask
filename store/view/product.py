@@ -5,4 +5,4 @@ product = Blueprint('product',__name__)
 
 @product.route('/product')
 def product_product():
-    return 'PRODUCT'
+    return render_template('angular_hash.html')
