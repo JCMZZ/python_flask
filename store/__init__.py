@@ -52,7 +52,8 @@ def create_app(test_config=None):
     
     @app.route('/<regex(".*"):url>')
     def user(url):
-        return redirect(url_for('detail.detail_detail'))
+        print(url)
+        return redirect(url_for('detail.detail_detail',url='/'))
 
     return app
 
