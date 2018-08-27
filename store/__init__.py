@@ -35,17 +35,17 @@ def create_app(test_config=None):
     # create data table
     dbcreate.vmcreate(app)
     # import blueprint
-    from .view import index
-    from .view import product
+    from .view import vue
+    from .view import angularhash
+    from .view import angularhistory
     from .view import company
-    from .view import detail
     # regex URL
     app.url_map.converters['regex'] = RegexConverter
     # register blueprint
-    app.register_blueprint(index.index,url_prefix='/index')
-    app.register_blueprint(product.product,url_prefix='/product')
+    app.register_blueprint(vue.vue,url_prefix='/vue')
+    app.register_blueprint(angularhash.angularhash,url_prefix='/angularhash')
+    app.register_blueprint(angularhistory.angularhistory,url_prefix='/angularhistory')
     app.register_blueprint(company.company,url_prefix='/company')
-    app.register_blueprint(detail.detail,url_prefix='/detail')
     @app.route('/favicon.ico')
     def favicon():
         return send_from_directory(os.path.join(app.root_path, 'static'),'favicon.ico', mimetype='image/vnd.microsoft.icon')
@@ -53,7 +53,7 @@ def create_app(test_config=None):
     @app.route('/<regex(".*"):url>')
     def user(url):
         print(url)
-        return redirect(url_for('detail.detail_detail',url='/'))
+        return redirect(url_for('vue.vue_vue',url=''))
 
     return app
 
