@@ -1,5 +1,8 @@
 # _*_ coding:UTF-8 _*_
 
+# index api 
+from .model import index
+
 def vmdb(db):
   # 角色
   class Role(db.Model):
@@ -34,7 +37,7 @@ def vmdb(db):
 
     def __repr__(self):
         return '<UserInfo %r>' % self.email
-        
+  db = index.index(db)
   # 如果表存在就删除      
   db.drop_all()
   # 创建表

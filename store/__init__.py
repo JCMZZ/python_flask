@@ -34,27 +34,31 @@ def create_app(test_config=None):
     
     # create data table
     dbcreate.vmcreate(app)
-    # import blueprint
+    # import blueprint view
     from .view import vue
     from .view import angularhash
     from .view import angularhistory
     from .view import company
     # regex URL
     app.url_map.converters['regex'] = RegexConverter
-    # register blueprint
+    # register blueprint view
     app.register_blueprint(vue.vue,url_prefix='/vue')
     app.register_blueprint(angularhash.angularhash,url_prefix='/angularhash')
     app.register_blueprint(angularhistory.angularhistory,url_prefix='/angularhistory')
     app.register_blueprint(company.company,url_prefix='/company')
+    # import blueprint api
+    from .api import index
+    # register blueprint api
+    app.register_blueprint(index.index,url_prefix='/index')
+    # redirect ico
     @app.route('/favicon.ico')
     def favicon():
         return send_from_directory(os.path.join(app.root_path, 'static'),'favicon.ico', mimetype='image/vnd.microsoft.icon')
-    
+    # not Found redirect
     @app.route('/<regex(".*"):url>')
     def user(url):
-        print(url)
         return redirect(url_for('vue.vue_vue',url=''))
-
+    
     return app
 
 if __name__ == '__main__':
