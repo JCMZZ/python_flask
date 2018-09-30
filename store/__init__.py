@@ -33,7 +33,8 @@ def create_app(test_config=None):
     #     pass
     
     # create data table
-    dbcreate.vmcreate(app)
+    global db
+    db = dbcreate.vmcreate(app)
     # import blueprint view
     from .view import vue
     from .view import angularhash
