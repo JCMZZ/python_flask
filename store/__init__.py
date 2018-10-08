@@ -50,9 +50,9 @@ def create_app(test_config=None):
     app.register_blueprint(angularhistory.angularhistory,url_prefix='/angularhistory')
     app.register_blueprint(company.company,url_prefix='/company')
     # import blueprint api
-    from .api import index
+    from .api import vue
     # register blueprint api
-    app.register_blueprint(index.index,url_prefix='/index')
+    app.register_blueprint(vue.index)
     # redirect ico
     @app.route('/favicon.ico')
     def favicon():
