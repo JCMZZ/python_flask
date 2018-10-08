@@ -26,7 +26,7 @@ class JuUser(db.Model):
         self.avter = avter
         self.is_del = is_del
   def __repr__(self):
-      return '<Commodity %r>' % self.cname
+      return '<Commodity %r>' % self.uname
 # 创建商品表
 class Commodity(db.Model):
   __tablename__ = 'commodity'
