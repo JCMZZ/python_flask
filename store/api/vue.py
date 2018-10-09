@@ -1,6 +1,6 @@
 
-import random, math
-from flask import Blueprint, jsonify, request
+import random, math, time
+from flask import Blueprint, jsonify, request, session
 from .. import dbmodel, db
 from ..mypackage import index as indexPackage
 index = Blueprint('index',__name__)
@@ -78,3 +78,49 @@ def check():
     JuUser = dbmodel.JuUser
     result = db.session.query(JuUser).filter(eval('JuUser.%s' % key) == value).all()
     return str(len(result))
+
+# 登录验证
+@index.route('/login', methods=['POST','GET'])
+def login():
+    uname = request.form['uname']
+    pwd = request.form['pwd']
+    if session.get('user:%s' % uname) == uname:
+        date = time.time()
+        session.get('rest:%s' % uname) == None and (session['rest:%s' % uname] = date)
+        if date - session.get('rest:%s' % uname) >= 60000:
+            session.get('monitor:%s' % uname).readyState == 1 and (session.get('monitor:%s' % uname).send('clear'))
+            logout()
+        else:
+            return jsonify({'code': 3, 'msg': '失败'})
+        print('1')
+    JuUser = dbmodel.JuUser
+    result = db.session.query(JuUser).filter(JuUser.cid == pwd,JuUser.cid == uname).all()
+    print(result)
+    if len(result) >= 1:
+        session['user:%s' % uname] = result[0].uname
+        return jsonify({'code': 1, 'msg': result})
+    else:
+        return jsonify({'code': 0, 'msg': '失败'})
+    
+# app.post('/login', function (req, res) {
+#   if (session['user:' + req.body.uname] === req.body.uname) {
+#     let date = new Date().getTime()
+#     session['rest:' + req.body.uname] === undefined && (session['rest:' + req.body.uname] = date)
+#     if (date - session['rest:' + req.body.uname] >= 60000) {
+#       session['monitor:' + req.body.uname].readyState === 1 && (session['monitor:' + req.body.uname].send('clear'))
+#       logout(req)
+#     } else {
+#       res.send({code: 3, msg: '失败'})
+#       return
+#     }
+#   }
+#   connection.query("SELECT * FROM ju_user WHERE uname='" + req.body.uname + "'AND pwd='" + req.body.pwd + "'", function (err, results) {
+#     if (err) return
+#     if (results.length) {
+#       session['user:' + req.body.uname] = results[0].uname
+#       res.send({code: 1, msg: results})
+#     } else {
+#       res.send({code: 0, msg: '失败'})
+#     }
+#   })
+# })
