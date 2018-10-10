@@ -1,9 +1,9 @@
-
 import random, math, time
 from flask import Blueprint, jsonify, request, session
 from .. import dbmodel, db
 from ..mypackage import index as indexPackage
 index = Blueprint('index',__name__)
+ws = Blueprint('ws', __name__)
 
 fmtDecimal = indexPackage.MyPackage.fmtDecimal
 @index.route('/home/card', methods=['POST','GET'])
@@ -86,19 +86,29 @@ def login():
     pwd = request.form['pwd']
     if session.get('user:%s' % uname) == uname:
         date = time.time()
-        session.get('rest:%s' % uname) == None and (session['rest:%s' % uname] = date)
+        if session.get('rest:%s' % uname) == None:
+            session['rest:%s' % uname] = date
         if date - session.get('rest:%s' % uname) >= 60000:
-            session.get('monitor:%s' % uname).readyState == 1 and (session.get('monitor:%s' % uname).send('clear'))
+            if session.get('monitor:%s' % uname).readyState == 1:
+                session.get('monitor:%s' % uname).send('clear')
             logout()
         else:
             return jsonify({'code': 3, 'msg': '失败'})
-        print('1')
     JuUser = dbmodel.JuUser
-    result = db.session.query(JuUser).filter(JuUser.cid == pwd,JuUser.cid == uname).all()
-    print(result)
-    if len(result) >= 1:
+    result = db.session.query(JuUser).filter(JuUser.pwd == pwd,JuUser.uname == uname).first()
+    newResult = {}
+    newResult['uid'] = result.uid 
+    newResult['uname'] = result.uname 
+    newResult['pwd'] = result.pwd 
+    newResult['email'] = result.email 
+    newResult['phone'] = result.phone 
+    newResult['address'] = result.address 
+    newResult['avter'] = result.avter 
+    newResult['time'] = result.time 
+    newResult['is_del'] = result.is_del 
+    if newResult.get('uid') != None:
         session['user:%s' % uname] = result[0].uname
-        return jsonify({'code': 1, 'msg': result})
+        return jsonify({'code': 1, 'msg': newResult})
     else:
         return jsonify({'code': 0, 'msg': '失败'})
     
@@ -122,5 +132,62 @@ def login():
 #     } else {
 #       res.send({code: 0, msg: '失败'})
 #     }
+#   })
+# })
+
+# 账户退出登录
+@index.route('/logout', methods=['POST','GET'])
+def logout_route():
+    logout(request)
+    return '已经退出'
+def logout(request):
+    uname = request.form['uname']
+    if session.get(uname) != None:
+        # w[session[req.body.uname]].close()
+        session.pop(uname,None)
+    session.pop('user:%s' % uname,None)
+    session.pop('rest:%s' % uname,None)
+    if session.get('monitor:%s' % uname) == 1:
+        session.get('monitor:%s' % uname).close()
+    session.pop('monitor:%s' % uname,None)
+    
+
+# function logout (req) {
+#   if (session[req.body.uname] !== undefined) {
+#     
+#     delete session[req.body.uname]
+#   }
+#   console.log('退出:' + req.body.uname)
+#   delete session['user:' + req.body.uname]
+#   delete session['rest:' + req.body.uname]
+#   session['monitor:' + req.body.uname] === 1 && (session['monitor:' + req.body.uname].close())
+#   delete session['monitor:' + req.body.uname]
+# }
+
+# socket服务端口监听 异地登录监听
+@ws.route('/monitor')
+def monitor_socket(socket):
+    while not socket.closed:
+        message = socket.receive()
+        print(message)
+        socket.send(message)
+
+# // socket服务端口监听 异地登录监听
+# var monitor = new WebSocketServer({port: 60000})
+# // socket服务连接
+# // let m = {}
+# monitor.on('connection', function (ws) {
+#   ws.on('message', function (message) {
+#     console.log('monitor: ', message)
+#     session['monitor:' + message] = ws
+#     // console.log(ws._ultron.id)//连接id
+#     ws.send('monitor:已经连接')
+#   })
+#   ws.on('error', function (err) {
+#     console.log(err)
+#   })
+#   ws.on('close', function () {
+#     // console.log(ws._finalize.__ultron)//结束id
+#     console.log('monitor:断开连接')
 #   })
 # })
