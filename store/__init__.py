@@ -3,8 +3,6 @@ import os
 from flask import Flask, send_from_directory, redirect, url_for
 from werkzeug.routing import  BaseConverter
 
-from flask_sockets import Sockets
-
 # import database create table
 from . import dbcreate
 
@@ -62,16 +60,8 @@ def create_app(test_config=None):
     @app.route('/<regex(".*"):url>')
     def user(url):
         return redirect(url_for('vue.vue_vue',url=''))
-    # Sockets
-    sockets = Sockets(app)
-    app.register_blueprint(vue.index)
-    sockets.register_blueprint(vue.ws)
     return app
 
 if __name__ == '__main__':
     app.run(debug=True)
-    from gevent import pywsgi
-    from geventwebsocket.handler import WebSocketHandler
-    server = pywsgi.WSGIServer(('', 5000), app, handler_class=WebSocketHandler)
-    server.serve_forever()
    

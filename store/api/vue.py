@@ -89,8 +89,6 @@ def login():
         if session.get('rest:%s' % uname) == None:
             session['rest:%s' % uname] = date
         if date - session.get('rest:%s' % uname) >= 60000:
-            if session.get('monitor:%s' % uname).readyState == 1:
-                session.get('monitor:%s' % uname).send('clear')
             logout()
         else:
             return jsonify({'code': 3, 'msg': '失败'})
@@ -107,33 +105,10 @@ def login():
     newResult['time'] = result.time 
     newResult['is_del'] = result.is_del 
     if newResult.get('uid') != None:
-        session['user:%s' % uname] = result[0].uname
-        return jsonify({'code': 1, 'msg': newResult})
+        session['user:%s' % uname] = result.uname
+        return jsonify({'code': 1, 'msg': [newResult]})
     else:
         return jsonify({'code': 0, 'msg': '失败'})
-    
-# app.post('/login', function (req, res) {
-#   if (session['user:' + req.body.uname] === req.body.uname) {
-#     let date = new Date().getTime()
-#     session['rest:' + req.body.uname] === undefined && (session['rest:' + req.body.uname] = date)
-#     if (date - session['rest:' + req.body.uname] >= 60000) {
-#       session['monitor:' + req.body.uname].readyState === 1 && (session['monitor:' + req.body.uname].send('clear'))
-#       logout(req)
-#     } else {
-#       res.send({code: 3, msg: '失败'})
-#       return
-#     }
-#   }
-#   connection.query("SELECT * FROM ju_user WHERE uname='" + req.body.uname + "'AND pwd='" + req.body.pwd + "'", function (err, results) {
-#     if (err) return
-#     if (results.length) {
-#       session['user:' + req.body.uname] = results[0].uname
-#       res.send({code: 1, msg: results})
-#     } else {
-#       res.send({code: 0, msg: '失败'})
-#     }
-#   })
-# })
 
 # 账户退出登录
 @index.route('/logout', methods=['POST','GET'])
@@ -143,51 +118,19 @@ def logout_route():
 def logout(request):
     uname = request.form['uname']
     if session.get(uname) != None:
-        # w[session[req.body.uname]].close()
         session.pop(uname,None)
     session.pop('user:%s' % uname,None)
     session.pop('rest:%s' % uname,None)
-    if session.get('monitor:%s' % uname) == 1:
-        session.get('monitor:%s' % uname).close()
-    session.pop('monitor:%s' % uname,None)
-    
 
-# function logout (req) {
-#   if (session[req.body.uname] !== undefined) {
-#     
-#     delete session[req.body.uname]
-#   }
-#   console.log('退出:' + req.body.uname)
-#   delete session['user:' + req.body.uname]
-#   delete session['rest:' + req.body.uname]
-#   session['monitor:' + req.body.uname] === 1 && (session['monitor:' + req.body.uname].close())
-#   delete session['monitor:' + req.body.uname]
-# }
-
-# socket服务端口监听 异地登录监听
-@ws.route('/monitor')
-def monitor_socket(socket):
-    while not socket.closed:
-        message = socket.receive()
-        print(message)
-        socket.send(message)
-
-# // socket服务端口监听 异地登录监听
-# var monitor = new WebSocketServer({port: 60000})
-# // socket服务连接
-# // let m = {}
-# monitor.on('connection', function (ws) {
-#   ws.on('message', function (message) {
-#     console.log('monitor: ', message)
-#     session['monitor:' + message] = ws
-#     // console.log(ws._ultron.id)//连接id
-#     ws.send('monitor:已经连接')
-#   })
-#   ws.on('error', function (err) {
-#     console.log(err)
-#   })
-#   ws.on('close', function () {
-#     // console.log(ws._finalize.__ultron)//结束id
-#     console.log('monitor:断开连接')
-#   })
-# })
+# 购物车入录信息
+@index.route('/shop', methods=['POST','GET'])
+def shop():
+    parmars = request.form.to_dict()
+    try:
+        parmars = request.form.to_dict()
+        insertShop = dbmodel.Shop(parmars['sname'], parmars['sprice'], parmars['discount'], parmars['count'], parmars['spic'], parmars['commitment'], parmars['remark'], parmars['address'], parmars['cid'], parmars['uid'])
+        db.session.add(insertShop)
+        db.session.commit()
+        return jsonify({'code': 1, 'msg': '添加成功'})
+    except:
+        return jsonify({'code': 0, 'msg': '添加失败'})
